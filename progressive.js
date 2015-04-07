@@ -15,27 +15,24 @@ var Progressive = (function () {
 		domPrefixes = ["Webkit", "Moz", "O", "ms", "Khtml"],
 		numPrefixes = domPrefixes.length,
 		prefix,
+		getElements,
 		enhance,
 		i;
 
-	// Polyfill `getElementsByClassName`, which is used by the fallback method
-	document.getElementsByClassName = document.getElementsByClassName || function (className) {
-		var classElements = [],
-			els,
-			elsLen,
-			pattern = new RegExp("(^|\\s)" + className + "(\\s|$)"),
-			i,
-			j;
-		els = document.getElementsByTagName("*");
-		elsLen = els.length;
-		for (i = 0, j = 0; i < elsLen; i++) {
-			if (pattern.test(els[i].className)) {
-				classElements[j] = els[i];
-				j++;
-			}
+	// Detect type of element selector and choose fastest DOM selection method
+	getElements = function (selector) {
+		var selectorType = selector.match(/[^a-zA-Z-]/g), elements;
+		if (null === selectorType) {
+			elements = document.getElementsByTagName(selector);
+		} else if ((selectorType.length === 1) && (selectorType[0] === ".")) {
+			elements = document.getElementsByClassName(selector.slice(1));
+		} else if ((selectorType.length === 1) && (selectorType[0] === "#")) {
+			elements = [document.getElementById(selector.slice(1))];
+		} else {
+			elements = document.querySelectorAll(selector);
 		}
-		return classElements;
-	};
+		return elements;
+	}
 
 	// Feature/vendor prefix detection for CSS animations
 	if (styleElem.style.animationName) {
@@ -66,7 +63,7 @@ var Progressive = (function () {
 					i;
 				for (enhancement in enhancements) {
 					if (enhancements.hasOwnProperty(enhancement)) {
-						elems = document.getElementsByClassName(enhancements[enhancement].className);
+						elems = getElements(enhancements[enhancement].selector || ("."+enhancements[enhancement].className));
 						numElems = elems.length;
 						if (!enhancements[enhancement].count || enhancements[enhancement].count < numElems) {
 							for (i = 0; i < numElems; i++) {
@@ -90,7 +87,7 @@ var Progressive = (function () {
 			// Build up a set of CSS rules to run animations on newly inserted elements
 			for (enhancement in enhancements) {
 				if (enhancements.hasOwnProperty(enhancement)) {
-					ruleText += "." + enhancements[enhancement].className + "{";
+					ruleText += (enhancements[enhancement].selector || "."+enhancements[enhancement].className) + "{";
 					ruleText += keyframePrefix + "animation:" + enhancement + " 0.001s;";
 					ruleText += "}";
 					ruleText += "@" + keyframePrefix + "keyframes " + enhancement + "{from{clip:rect(1px,auto,auto,auto);}to{clip:rect(0px,auto,auto,auto);}}";

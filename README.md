@@ -18,7 +18,7 @@ Simply include the script in the `<head>` of your document, and follow the simpl
 <script>
 	Progressive.enhance({
 		borders: {
-			className: "toBeEnhanced",
+			selector: "#any .toBeEnhanced",
 			callback: function () {
 				this.style.border = "1px dashed red";
 			}
@@ -31,7 +31,7 @@ This example demonstrates pretty much all there is to know about Progressive.js.
 
 The object can have any number of properties, with arbitrary keys. The keys are simply unique identifiers for individual sets of enhancements. In our example above, we are providing a single set of enhancements, called `borders`.
 
-The value of each enhancement must be another object, with two properties. The `className` property is simply the name of a class that is present on elements to which this enhancement should be applied. The `callback` property is a function that will be run every time an element with a matching class name is inserted into the DOM.
+The value of each enhancement must be another object, with two properties. Use the `selector` property so select the elements to which this enhancement should be applied. The `callback` property is a function that will be run every time an element that matches the selector is inserted into the DOM.
 
 If you want to see the script in action, [check out this simple example](http://www.jamesallardice.com/progressivejs-example1/).
 
@@ -50,5 +50,5 @@ Progressive.js relies on a technique discovered and demonstrated by [Daniel Buch
 Progressive.js is a work-in-progress. If you come across any issues not mentioned here, please feel free to open an issue on GitHub, or simply fork the repository and attempt to fix it yourself!
 
 - Multiple enhancements cannot be applied to individual elements
-- You can only use a class name to select elements
 - The fallback in browsers that don't support CSS animations uses the `onload` event. It would be nicer to use `DOMContentLoaded` where available.
+- Internet Explorer < 9 is not supported
