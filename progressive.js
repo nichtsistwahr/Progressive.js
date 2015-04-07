@@ -10,14 +10,9 @@ var Progressive = (function () {
 
 	var styleElem = document.createElement("style"),
 		animationSupport = false,
-		animationString,
 		keyframePrefix = "",
-		domPrefixes = ["Webkit", "Moz", "O", "ms", "Khtml"],
-		numPrefixes = domPrefixes.length,
-		prefix,
 		getElements,
-		enhance,
-		i;
+		enhance;
 
 	// Detect type of element selector and choose fastest DOM selection method
 	getElements = function (selector) {
@@ -35,18 +30,11 @@ var Progressive = (function () {
 	}
 
 	// Feature/vendor prefix detection for CSS animations
-	if (styleElem.style.animationName) {
+	if (styleElem.style.animationName !== undefined) {
 		animationSupport = true;
-	} else {
-		for (i = 0; i < numPrefixes; i++) {
-			if (styleElem.style[domPrefixes[i] + "AnimationName"] !== undefined) {
-				prefix = domPrefixes[i];
-				animationString = prefix + "Animation";
-				keyframePrefix = "-" + prefix.toLowerCase() + "-";
-				animationSupport = true;
-				break;
-			}
-		}
+	} else if (styleElem.style.WebkitAnimationName !== undefined) {
+		keyframePrefix = "-webkit-";
+		animationSupport = true;
 	}
 
 	// The main `enhance` method to register callbacks that will be executed when certain DOM elements are inserted
@@ -55,7 +43,7 @@ var Progressive = (function () {
 			styleRules = {},
 			enhancement,
 			onNodeInserted,
-			// The fallback function is executed on window load. It will handle any elements not handled by the animation callbacks
+			// The fallback function is executed on DOMContentLoaded. It will handle any elements not handled by the animation callbacks
 			fallback = function () {
 				var enhancement,
 					elems,
@@ -106,16 +94,10 @@ var Progressive = (function () {
 
 			// Register cross-browser CSS animation event handlers
 			document.addEventListener("animationstart", onNodeInserted, false);
-			document.addEventListener("oanimationstart", onNodeInserted, false);
-			document.addEventListener("MSAnimationStart", onNodeInserted, false);
 			document.addEventListener("webkitAnimationStart", onNodeInserted, false);
-		}
-
-		// Register fallback event handlers
-		if (window.addEventListener) {
-			window.addEventListener("load", fallback);
-		} else if (window.attachEvent) {
-			window.attachEvent("onload", fallback);
+		} else {
+			// Register fallback event handlers
+			window.addEventListener("DOMContentLoaded", fallback);
 		}
 	};
 
