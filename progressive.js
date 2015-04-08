@@ -17,6 +17,9 @@ var Progressive = (function () {
 	// Detect type of element selector and choose fastest DOM selection method
 	getElements = function (selector) {
 		var selectorType = selector.match(/[^a-zA-Z0-9-]/g), elements;
+		// simple polyfill for getElementsByClassName
+		document.getElementsByClassName = document.getElementsByClassName || function(e){ return document.querySelectorAll("."+e) };
+
 		if (null === selectorType) {
 			elements = document.getElementsByTagName(selector);
 		} else if ((selectorType.length === 1) && (selectorType[0] === ".")) {
@@ -78,7 +81,7 @@ var Progressive = (function () {
 					ruleText += (enhancements[enhancement].selector || "."+enhancements[enhancement].className) + "{";
 					ruleText += keyframePrefix + "animation:" + enhancement + " 0.001s;";
 					ruleText += "}";
-					ruleText += "@" + keyframePrefix + "keyframes " + enhancement + "{from{clip:rect(1px,auto,auto,auto);}to{clip:rect(0px,auto,auto,auto);}}";
+					ruleText += "@" + keyframePrefix + "keyframes " + enhancement + "{from{opacity:0.99;}to{opacity:1;}}";
 				}
 			}
 
@@ -97,7 +100,8 @@ var Progressive = (function () {
 			document.addEventListener("webkitAnimationStart", onNodeInserted, false);
 		} else {
 			// Register fallback event handlers
-			window.addEventListener("DOMContentLoaded", fallback);
+			if (window.addEventListener) { window.addEventListener("DOMContentLoaded", fallback); }
+			else { window.attachEvent("onload", fallback); }
 		}
 	};
 

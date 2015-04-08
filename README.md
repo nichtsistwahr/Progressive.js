@@ -37,18 +37,17 @@ If you want to see the script in action, [check out this simple example](http://
 
 ##Browser support
 
-Progressive.js relies on a technique discovered and demonstrated by [Daniel Buchner](http://www.backalleycoder.com/) and [David Walsh](http://davidwalsh.name/), and is described in [a blog post by David](http://davidwalsh.name/detect-node-insertion). That technique involves CSS animations, which are supported in a growing number of modern browsers. For all other browsers, Progressive.js falls back to the standard `load` event of the `window` object, so you don't need to write code twice. The following is a list of browsers that will fully benefit from the use of Progressive.js:
+Progressive.js relies on a technique discovered and demonstrated by [Daniel Buchner](http://www.backalleycoder.com/) and [David Walsh](http://davidwalsh.name/), and is described in [a blog post by David](http://davidwalsh.name/detect-node-insertion). That technique involves CSS animations, which are supported in a growing number of modern browsers. For all other browsers, Progressive.js falls back to DOMContentLoaded (where available) or the standard `load` event of the `window` object, so you don't need to write code twice. The following is a list of browsers that will fully benefit from the use of Progressive.js:
 
 - Chrome 4+
-- Firefox 5+
+- Firefox 16+
 - Safari 4+
-- Opera 12+
-- Internet Explorer 10
+- Opera 12.10+
+- Internet Explorer 10+
 
 ##Known issues
 
 Progressive.js is a work-in-progress. If you come across any issues not mentioned here, please feel free to open an issue on GitHub, or simply fork the repository and attempt to fix it yourself!
 
 - Multiple enhancements cannot be applied to individual elements
-- The fallback in browsers that don't support CSS animations uses the `onload` event. It would be nicer to use `DOMContentLoaded` where available.
-- Internet Explorer < 9 is not supported
+- `opacity` is used for animation detection, so if the opacity of your watched elements is not `1`, you might want to (re-)apply it in your callback function
