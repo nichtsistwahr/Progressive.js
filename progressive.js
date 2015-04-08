@@ -16,7 +16,7 @@ var Progressive = (function () {
 
 	// Detect type of element selector and choose fastest DOM selection method
 	getElements = function (selector) {
-		var selectorType = selector.match(/[^a-zA-Z-]/g), elements;
+		var selectorType = selector.match(/[^a-zA-Z0-9-]/g), elements;
 		if (null === selectorType) {
 			elements = document.getElementsByTagName(selector);
 		} else if ((selectorType.length === 1) && (selectorType[0] === ".")) {
