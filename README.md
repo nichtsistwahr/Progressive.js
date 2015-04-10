@@ -51,3 +51,4 @@ Progressive.js is a work-in-progress. If you come across any issues not mentione
 
 - Multiple enhancements cannot be applied to individual elements
 - `opacity` is used for animation detection, so if the opacity of your watched elements is not `1`, you might want to (re-)apply it in your callback function
+- Invisible elements are not animated by the browser until they become visible, so their callbacks are called on DOMContentLoaded / window.onload

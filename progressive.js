@@ -39,7 +39,18 @@ var Progressive = (function () {
 
 	// The main `enhance` method to register callbacks that will be executed when certain DOM elements are inserted
 	function enhance (enhancements) {
-		// The fallback function is executed on DOMContentLoaded. It will handle any elements not handled by the animation callbacks
+		// Issue callback (if it did not fire for this DOM element before)
+		function issueCallback (enhancement, target) {
+			var elems = enhancement.elems, i;
+			for (i = elems.length-1; i >= 0; --i) {
+				if (elems[i] === target) return;
+			}
+			elems.push(target);
+			enhancement.callback.call(target);
+		}
+
+		// The fallback function is executed on DOMContentLoaded / window.onload.
+		// It will handle any elements not handled by the animation callbacks (e.g. if they are invisible)
 		function fallback () {
 			var enhancement,
 			    elems,
@@ -49,22 +60,21 @@ var Progressive = (function () {
 				if (enhancements.hasOwnProperty(enhancement)) {
 					elems = getElements(enhancements[enhancement].selector);
 					numElems = elems.length;
-					if (!enhancements[enhancement].count || enhancements[enhancement].count < numElems) {
-						for (i = 0; i < numElems; i++) {
-							enhancements[enhancement].callback.call(elems[i]);
-						}
+					for (i = 0; i < numElems; i++) {
+						issueCallback(enhancements[enhancement], elems[i]);
 					}
 				}
+			}
+			if (window.removeEventListener) {
+				d.removeEventListener("animationstart", onNodeInserted);
+				d.removeEventListener("webkitAnimationStart", onNodeInserted);
 			}
 		}
 
 		// This is used as a callback to the CSS animation events. It's used to fire the supplied enhancements, in the context of each element
 		function onNodeInserted (e) {
 			var enhancement = enhancements[e.animationName];
-			if (enhancement) {
-				enhancement.count = ++enhancement.count || 1;
-				enhancement.callback.call(e.target);
-			}
+			if (enhancement) issueCallback(enhancement, e.target);
 		}
 
 		if (animationSupport) {
@@ -73,6 +83,7 @@ var Progressive = (function () {
 			// Build up a set of CSS rules to run animations on newly inserted elements
 			for (var enhancement in enhancements) {
 				if (enhancements.hasOwnProperty(enhancement)) {
+					enhancements[enhancement].elems = [];
 					styleSheet.insertRule(enhancements[enhancement].selector + "{" + keyframePrefix + "animation:" + enhancement + " 0.001s;} ", styleSheet.cssRules.length);
 					styleSheet.insertRule("@" + keyframePrefix + "keyframes " + enhancement + "{from{opacity:0.99;}to{opacity:1;}}", styleSheet.cssRules.length);
 				}
@@ -81,11 +92,10 @@ var Progressive = (function () {
 			// Register cross-browser CSS animation event handlers
 			d.addEventListener("animationstart", onNodeInserted, false);
 			d.addEventListener("webkitAnimationStart", onNodeInserted, false);
-		} else {
-			// Register fallback event handlers
-			if (window.addEventListener) { window.addEventListener("DOMContentLoaded", fallback); }
-			else { window.attachEvent("onload", fallback); }
 		}
+		// Register fallback event handlers
+		if (window.addEventListener) { window.addEventListener("DOMContentLoaded", fallback); }
+		else { window.attachEvent("onload", fallback); }
 	}
 
 	// Expose public methods
