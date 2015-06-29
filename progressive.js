@@ -42,10 +42,12 @@ var Progressive = (function () {
 		// Issue callback (if it did not fire for this DOM element before)
 		function issueCallback (enhancement, target) {
 			var elems = enhancement.elems, i;
-			for (i = elems.length-1; i >= 0; --i) {
-				if (elems[i] === target) return;
+			if ( elems !== undefined ) {
+				for (i = elems.length-1; i >= 0; --i) {
+					if (elems[i] === target) return;
+				}
+				elems.push(target);
 			}
-			elems.push(target);
 			enhancement.callback.call(target);
 		}
 
